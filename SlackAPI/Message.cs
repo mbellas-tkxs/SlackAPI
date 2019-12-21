@@ -22,5 +22,7 @@ namespace SlackAPI
         //Wibblr? Not really sure what this applies to.  :<
 
         public DateTime? thread_ts;
+
+        public Attachment[] attachments { get; set; }
     }
 }

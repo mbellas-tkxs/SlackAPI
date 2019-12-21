@@ -43,7 +43,7 @@ namespace SlackAPI
         {
             routing = new Dictionary<string, Dictionary<string, Type>>();
 
-#if NET45 || NETSTANDARD2_0
+#if NET45 || NETSTANDARD2_0 || NETSTANDARD2_1
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.GlobalAssemblyCache == false);
 #elif NETSTANDARD1_6
              var assemblies = DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);

@@ -106,6 +106,11 @@ namespace SlackAPI
             }
         }
 
+        public Task DeleteReactionAsync(string v, string channel, string message_ts)
+        {
+            throw new NotImplementedException();
+        }
+
         public void APIRequestWithToken<K>(Action<K> callback, params Tuple<string, string>[] getParameters)
             where K : Response
         {
@@ -323,14 +328,42 @@ namespace SlackAPI
             APIRequestWithToken(historyCallback, parameters.ToArray());
         }
 
+        Task<K> GetHistoryAsync<K>(string channel, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
+
+            where K : MessageHistory
+        {
+            List<Tuple<string, string>> parameters = new List<Tuple<string, string>>();
+            parameters.Add(new Tuple<string, string>("channel", channel));
+
+            if (latest.HasValue)
+                parameters.Add(new Tuple<string, string>("latest", latest.Value.ToProperTimeStamp()));
+            if (oldest.HasValue)
+                parameters.Add(new Tuple<string, string>("oldest", oldest.Value.ToProperTimeStamp()));
+
+            if (count.HasValue)
+                parameters.Add(new Tuple<string, string>("count", count.Value.ToString()));
+            if (unreads.HasValue)
+                parameters.Add(new Tuple<string, string>("unreads", unreads.Value ? "1" : "0"));
+
+            return APIRequestWithTokenAsync<K>(parameters.ToArray());
+        }
+
         public void GetChannelHistory(Action<ChannelMessageHistory> callback, Channel channelInfo, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
         {
             GetHistory(callback, channelInfo.id, latest, oldest, count, unreads);
+        }
+        public Task<ChannelMessageHistory> GetChannelHistoryAsync(Channel channelInfo, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
+        {
+            return GetHistoryAsync<ChannelMessageHistory>(channelInfo.id, latest, oldest, count, unreads);
         }
 
         public void GetDirectMessageHistory(Action<MessageHistory> callback, DirectMessageConversation conversationInfo, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
         {
             GetHistory(callback, conversationInfo.id, latest, oldest, count, unreads);
+        }
+        public Task<MessageHistory> GetDirectMessageHistoryAsync(DirectMessageConversation conversationInfo, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
+        {
+            return GetHistoryAsync<MessageHistory>(conversationInfo.id, latest, oldest, count, unreads);
         }
 
         public void GetGroupHistory(Action<GroupMessageHistory> callback, Channel groupInfo, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
@@ -338,6 +371,10 @@ namespace SlackAPI
             GetHistory(callback, groupInfo.id, latest, oldest, count, unreads);
         }
 
+        public Task<GroupMessageHistory> GetGroupHistoryAsync(Channel groupInfo, DateTime? latest = null, DateTime? oldest = null, int? count = null, bool? unreads = false)
+        {
+            return GetHistoryAsync<GroupMessageHistory>(groupInfo.id, latest, oldest, count, unreads);
+        }
         public void MarkChannel(Action<MarkResponse> callback, string channelId, DateTime ts)
         {
             APIRequestWithToken(callback,
@@ -1111,6 +1148,34 @@ namespace SlackAPI
             if (file == null) throw new ArgumentException(nameof(file));
 
             return APIRequestWithTokenAsync<FileDeleteResponse>(new Tuple<string, string>("file", file));
+        }
+
+        public void UnfurlLink(Action<UnfurlLinkResponse> callback, string channel, string ts, object unfurls)
+        {
+            var json = JsonConvert.SerializeObject(unfurls);
+            APIRequestWithToken(callback,
+                new Tuple<string, string>("channel", channel),
+                new Tuple<string, string>("ts", ts),
+                new Tuple<string, string>("unfurls", json));
+        }
+
+        public Task<UnfurlLinkResponse> UnfurlLinkAsync(string channel, string ts, object unfurls)
+        {
+            var json = JsonConvert.SerializeObject(unfurls);
+            return APIRequestWithTokenAsync<UnfurlLinkResponse>(
+                new Tuple<string, string>("channel", channel),
+                new Tuple<string, string>("ts", ts),
+                new Tuple<string, string>("unfurls", json));
+        }
+
+        public void JoinChannel(Action<UnfurlLinkResponse> callback, string channel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UnfurlLinkResponse> JoinChannelAsync(string channel)
+        {
+            throw new NotImplementedException();
         }
     }
 }

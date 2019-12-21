@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Net;
 using SlackAPI.WebSocketMessages;
+using System.Threading.Tasks;
 
 namespace SlackAPI
 {
@@ -40,6 +41,15 @@ namespace SlackAPI
 
                 onConnected(s);
             });
+        }
+
+        public async Task<LoginResponse> ConnectAsync()//Action<LoginResponse> onConnected, Action onSocketConnected = null)
+        {
+            var response = await APIRequestWithTokenAsync<RtmStartResponse>();
+            if (response.ok)
+                return null;
+
+            return null;
         }
 
         protected override void Connected(LoginResponse loginDetails)
